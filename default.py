@@ -1,8 +1,8 @@
 
-import rpdb2 
-rpdb2.start_embedded_debugger('pw')
-import os, sys, threading, time, imp
-import xbmc, xbmcaddon, xbmcgui
+#import rpdb2 
+#rpdb2.start_embedded_debugger('pw')
+import os, sys
+import xbmc, xbmcaddon
 
 if sys.version_info < (2, 7):
     import simplejson
@@ -18,22 +18,18 @@ __addonResourcePath__ = xbmc.translatePath(os.path.join(__addonPath__, 'resource
 __addonIconFile__ = xbmc.translatePath(os.path.join(__addonPath__, 'icon.png'))
 sys.path.append(__addonResourcePath__)
 
-from langcodes import languageTranslate
+from langcodes import *
+from settings import *
+
+settings = settings()
 
 LOG_NONE = 0
 LOG_ERROR = 1
 LOG_INFO = 2
 LOG_DEBUG = 3
-
-logLevel = __addon__.getSetting('log_level')
-if logLevel and len(logLevel) > 0:
-    logLevel = int(logLevel)
-else:
-    logLevel = LOG_INFO
-    
     
 def log(level, msg):
-    if level <= logLevel:
+    if level <= settings.logLevel:
         if level == LOG_ERROR:
             l = xbmc.LOGERROR
         elif level == LOG_INFO:
@@ -42,15 +38,24 @@ def log(level, msg):
             l = xbmc.LOGDEBUG
         xbmc.log("[Language Preference Manager]: " + str(msg), l)
 
+
+class LangPref_Monitor( xbmc.Monitor ):
+  def __init__( self ):
+    xbmc.Monitor.__init__( self )
+        
+  def onSettingsChanged( self ):
+    settings.readPrefs()
+
 class Main:
     def __init__( self ):
         self._init_vars()
-        if __addon__.getSetting('enabled') != 'true':
+        if ( not settings.service_enabled):
             log(LOG_INFO, "Service not enabled")
         self._daemon()
 
     def _init_vars( self ):
-         self.Player = LangPrefMan_Player()
+        self.Monitor = LangPref_Monitor()
+        self.Player = LangPrefMan_Player()
 
     def _daemon( self ):
         while (not xbmc.abortRequested):
@@ -63,52 +68,44 @@ class LangPrefMan_Player(xbmc.Player) :
         xbmc.Player.__init__(self)
         
     def onPlayBackStarted(self):
-        if __addon__.getSetting('enabled') == 'true' and self.isPlayingVideo():
+        if settings.service_enabled and self.isPlayingVideo():
             log(LOG_DEBUG, 'Playback started')
-            PAUSE = 0
-            if __addon__.getSetting('pause') == 'true':
-                log(LOG_DEBUG, "Pausing player while evaluating language preferences")
-                self.pause()
-                xbmc.sleep(100)
-                PAUSE = 1
-            xbmc.sleep(100)
-            log(LOG_DEBUG, 'Reading preferences')
-            self.readPrefs()
+            if settings.delay > 0:
+                log(LOG_DEBUG, "Delaying preferences evaluation by {0} ms".format(settings.delay))
+		#self.pause()
+                #xbmc.sleep(settings.delay)
+		#self.pause()
+            log(LOG_DEBUG, 'Getting video properties')
             self.getDetails()
             self.evalPrefs()
-            
-            if PAUSE == 1:
-                self.pause()
+            xbmc.Player.onPlayBackStarted(self)
 
     def evalPrefs(self):
-        if __addon__.getSetting('enableAudio') == 'true':
+        if settings.audio_prefs_on:
             trackIndex = self.evalAudioPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Audio: None of the preferred languages is available' )
             elif trackIndex >= 0:
-                #xbmc.sleep(200)
                 self.switchAudioTrack(trackIndex)
             
-        if __addon__.getSetting('enableSub') == 'true':
+        if settings.sub_prefs_on:
             trackIndex = self.evalSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Subtitle: None of the preferred languages is available' )
             elif trackIndex >= 0:
-                #xbmc.sleep(200)
                 self.switchSubtitleTrack(trackIndex)
                 
-        if __addon__.getSetting('enableCondSub') == 'true':
+        if settings.condsub_prefs_on:
             trackIndex = self.evalCondSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
             elif trackIndex >= 0:
-                #xbmc.sleep(200)
                 self.switchSubtitleTrack(trackIndex)
                 
     def evalAudioPrefs(self):
         log(LOG_DEBUG, 'Evaluating audio preferences' )
         i = 0
-        for pref in self.AudioPrefs:
+        for pref in settings.AudioPrefs:
             i += 1
             name, code = pref
             if (self.selected_audio_stream and
@@ -133,13 +130,14 @@ class LangPrefMan_Player(xbmc.Player) :
         if json_response.has_key('result') and json_response['result'] != None:
             if json_response['result'] == 'OK':
                 log(LOG_INFO, 'Audio language succesfully set' )
+                log(LOG_DEBUG, json_response )
         else:
-            log(LOG_DEBUG, 'Error: ' +  json_response)
+            log(LOG_ERROR, 'Error: ' +  json_response)
             
     def evalSubPrefs(self):
         log(LOG_DEBUG, 'Evaluating subtitle preferences' )
         i = 0
-        for pref in self.SubtitlePrefs:
+        for pref in settings.SubtitlePrefs:
             i += 1
             name, code = pref
             if (self.selected_sub and
@@ -164,13 +162,14 @@ class LangPrefMan_Player(xbmc.Player) :
         if json_response.has_key('result') and json_response['result'] != None:
             if json_response['result'] == 'OK':
                 log(LOG_INFO, 'Subtitle language succesfully set' )
+                log(LOG_DEBUG, json_response )
         else:
-            log(LOG_DEBUG, 'Error ' +  json_response)
+            log(LOG_ERROR, 'Error ' +  json_response)
         
     def evalCondSubPrefs(self):
         log(LOG_DEBUG, 'Evaluating conditional subtitle preferences' )
         i = 0
-        for pref in self.CondSubtitlePrefs:
+        for pref in settings.CondSubtitlePrefs:
             i += 1
             audio_name, audio_code, sub_name, sub_code = pref
             if (self.selected_audio_stream and
@@ -201,33 +200,6 @@ class LangPrefMan_Player(xbmc.Player) :
             self.audiostreams = json_response['result']['audiostreams']
             self.subtitles = json_response['result']['subtitles']
         log(LOG_DEBUG, json_response )
-    
-    def readPrefs(self):
-        self.AudioPrefs = [
-            (languageTranslate(__addon__.getSetting('AudioLang01'), 4, 0) , languageTranslate(__addon__.getSetting('AudioLang01'), 4, 3)),
-            (languageTranslate(__addon__.getSetting('AudioLang02'), 4, 0) , languageTranslate(__addon__.getSetting('AudioLang02'), 4, 3)),
-            (languageTranslate(__addon__.getSetting('AudioLang03'), 4, 0) , languageTranslate(__addon__.getSetting('AudioLang03'), 4, 3))
-        ]
-        self.SubtitlePrefs = [
-            (languageTranslate(__addon__.getSetting('SubLang01'), 4, 0) , languageTranslate(__addon__.getSetting('AudioLang01'), 4, 3)),
-            (languageTranslate(__addon__.getSetting('SubLang02'), 4, 0) , languageTranslate(__addon__.getSetting('AudioLang02'), 4, 3)),
-            (languageTranslate(__addon__.getSetting('SubLang03'), 4, 0) , languageTranslate(__addon__.getSetting('AudioLang03'), 4, 3))
-        ]
-        self.CondSubtitlePrefs = [
-            (
-                languageTranslate(__addon__.getSetting('CondAudioLang01'), 4, 0) , languageTranslate(__addon__.getSetting('CondAudioLang01'), 4, 3),
-                languageTranslate(__addon__.getSetting('CondSubLang01'), 4, 0) , languageTranslate(__addon__.getSetting('CondSubLang01'), 4, 3)
-            ),
-            (
-                languageTranslate(__addon__.getSetting('CondAudioLang02'), 4, 0) , languageTranslate(__addon__.getSetting('CondAudioLang02'), 4, 3),
-                languageTranslate(__addon__.getSetting('CondSubLang02'), 4, 0) , languageTranslate(__addon__.getSetting('CondSubLang02'), 4, 3)
-            ),
-            (
-                languageTranslate(__addon__.getSetting('CondAudioLang03'), 4, 0) , languageTranslate(__addon__.getSetting('CondAudioLang03'), 4, 3),
-                languageTranslate(__addon__.getSetting('CondSubLang03'), 4, 0) , languageTranslate(__addon__.getSetting('CondSubLang03'), 4, 3)
-            )
-        ]
-        
 
 if ( __name__ == "__main__" ):
     log(LOG_INFO, 'service {0} version {1} started'.format(__addonname__, __addonversion__))

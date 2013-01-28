@@ -1,6 +1,7 @@
 <settings>
 	<category label="General">
 		<setting id="enabled" label="30108" type="bool" default="false"/>
+		<setting id="delay" label="30112" type="number" default="0"/>
 		<setting id="pause" label="30109" type="bool" default="false" visible="false"/>
 		<setting id="log_level" label="Log level" type="enum" values="NONE|ERROR|INFO|DEBUG" default="1"/>
 	</category>

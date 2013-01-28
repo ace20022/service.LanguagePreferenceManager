@@ -17,7 +17,8 @@
 	<string id="30109">Pause while evaluating preferences</string>
 	<string id="30110">If audio language is </string>
 	<string id="30111">then display subtitles with language</string>
-        
+	<string id="30112">Delay the evaluation by the given ms</string>
+	        
   <!-- Languages  -->
   
     <string id="30201">Albanian</string>
