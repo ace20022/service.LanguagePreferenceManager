@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*- 
 
+#    This script is based on the one of script.xbmc.subtitles
+#    Thanks to their original authors amet, mr_blobby
 
 
 

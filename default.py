@@ -70,16 +70,12 @@ class LangPrefMan_Player(xbmc.Player) :
     def onPlayBackStarted(self):
         if settings.service_enabled and settings.at_least_one_pref_on and self.isPlayingVideo():
             log(LOG_DEBUG, 'Playback started')
+            self.audio_changed = False
             # switching an audio track to early leads to a reopen -> start at the beginning
             if settings.delay > 0:
                 log(LOG_DEBUG, "Delaying preferences evaluation by {0} ms".format(settings.delay))
                 xbmc.sleep(settings.delay)
             log(LOG_DEBUG, 'Getting video properties')
-            #start_time = self.getTime()
-            #diff = (self.getTime() - start_time)
-            #while ( diff < 0.01):
-            #    log(LOG_DEBUG, 'Waiting {0}'.format(diff))
-            #    diff = (self.getTime() - start_time)
             self.getDetails()
             self.evalPrefs()
 
@@ -90,7 +86,7 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Audio: None of the preferred languages is available' )
             elif trackIndex >= 0:
                 self.setAudioStream(trackIndex)
-                #self.switchAudioTrack(trackIndex)
+                self.audio_changed = True
             
         if settings.sub_prefs_on:
             trackIndex = self.evalSubPrefs()
@@ -98,7 +94,6 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Subtitle: None of the preferred languages is available' )
             elif trackIndex >= 0:
                 self.setSubtitleStream(trackIndex)
-                #self.switchSubtitleTrack(trackIndex)
                 
         if settings.condsub_prefs_on:
             trackIndex = self.evalCondSubPrefs()
@@ -106,7 +101,6 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
             elif trackIndex >= 0:
                 self.setSubtitleStream(trackIndex)
-                #self.switchSubtitleTrack(trackIndex)
                 
     def evalAudioPrefs(self):
         log(LOG_DEBUG, 'Evaluating audio preferences' )
@@ -127,19 +121,6 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Audio: preference {0} ({1}) not available'.format(i, name) )
         return -2
                 
-    def switchAudioTrack(self, trackIndex):
-        query_string = '{{"jsonrpc": "2.0", "method": "Player.SetAudioStream", "params":{{"playerid": 1,  "stream": {0} }},"id": 1}}'.format(trackIndex)
-        log(LOG_DEBUG, query_string)
-        json_query = xbmc.executeJSONRPC(query_string)
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-        if json_response.has_key('result') and json_response['result'] != None:
-            if json_response['result'] == 'OK':
-                log(LOG_INFO, 'Audio language succesfully set' )
-                log(LOG_DEBUG, json_response )
-        else:
-            log(LOG_ERROR, 'Error: ' +  json_response)
-            
     def evalSubPrefs(self):
         log(LOG_DEBUG, 'Evaluating subtitle preferences' )
         i = 0
@@ -159,21 +140,14 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Subtitle: preference {0} ({1}) not available'.format(i, name) )
         return -2
 
-    def switchSubtitleTrack(self, trackIndex):
-        query_string = '{{"jsonrpc": "2.0", "method": "Player.SetSubtitle", "params":{{"playerid": 1,  "subtitle": {0} }},"id": 1}}'.format(trackIndex)
-        log(LOG_DEBUG, query_string)
-        json_query = xbmc.executeJSONRPC(query_string)
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-        if json_response.has_key('result') and json_response['result'] != None:
-            if json_response['result'] == 'OK':
-                log(LOG_INFO, 'Subtitle language succesfully set' )
-                log(LOG_DEBUG, json_response )
-        else:
-            log(LOG_ERROR, 'Error ' +  json_response)
-        
     def evalCondSubPrefs(self):
         log(LOG_DEBUG, 'Evaluating conditional subtitle preferences' )
+        # if the audio track has been changed wait some time
+        if (not self.audio_changed and settings.delay > 0):
+            log(LOG_DEBUG, "Delaying preferences evaluation by {0} ms".format(4*settings.delay))
+            xbmc.sleep(4*settings.delay)
+        log(LOG_DEBUG, 'Getting video properties')
+        self.getDetails()
         i = 0
         for pref in settings.CondSubtitlePrefs:
             i += 1

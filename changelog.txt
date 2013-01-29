@@ -1,4 +1,4 @@
 --- Version 0.0.1
 
-First version of LanguagePreferenceManager.
+First version of Language Preference Manager.
 

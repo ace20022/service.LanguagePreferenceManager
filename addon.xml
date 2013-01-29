@@ -8,13 +8,13 @@
 	<requires>
 		<import addon="xbmc.python" version="2.0"/>
 	</requires>
+	<extension point="xbmc.service" library="default.py" start="login"/>
 	<extension point="xbmc.python.script" library="default.py">
 		<provides>executable</provides>
 	</extension>
-  	<extension point="xbmc.service" library="default.py" start="login"/>
 	<extension point="xbmc.addon.metadata">
-		<summary lang="en">Sets the audio and subtitle language according to your preferences</summary>
-		<description lang="en"></description>
+		<summary lang="en">Language Preference Manager</summary>
+		<description lang="en">Sets the audio and subtitle according to your language preferences</description>
 		<disclaimer lang="en">For bugs, requests or general questions visit the Language Preference Manager thread on the XBMC forum.</disclaimer>
 		<platform>all</platform>
 	</extension>
