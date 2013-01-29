@@ -68,17 +68,20 @@ class LangPrefMan_Player(xbmc.Player) :
         xbmc.Player.__init__(self)
         
     def onPlayBackStarted(self):
-        if settings.service_enabled and self.isPlayingVideo():
+        if settings.service_enabled and settings.at_least_one_pref_on and self.isPlayingVideo():
             log(LOG_DEBUG, 'Playback started')
+            # switching an audio track to early leads to a reopen -> start at the beginning
             if settings.delay > 0:
                 log(LOG_DEBUG, "Delaying preferences evaluation by {0} ms".format(settings.delay))
-		#self.pause()
-                #xbmc.sleep(settings.delay)
-		#self.pause()
+                xbmc.sleep(settings.delay)
             log(LOG_DEBUG, 'Getting video properties')
+            #start_time = self.getTime()
+            #diff = (self.getTime() - start_time)
+            #while ( diff < 0.01):
+            #    log(LOG_DEBUG, 'Waiting {0}'.format(diff))
+            #    diff = (self.getTime() - start_time)
             self.getDetails()
             self.evalPrefs()
-            xbmc.Player.onPlayBackStarted(self)
 
     def evalPrefs(self):
         if settings.audio_prefs_on:
@@ -86,21 +89,24 @@ class LangPrefMan_Player(xbmc.Player) :
             if trackIndex == -2:
                 log(LOG_INFO, 'Audio: None of the preferred languages is available' )
             elif trackIndex >= 0:
-                self.switchAudioTrack(trackIndex)
+                self.setAudioStream(trackIndex)
+                #self.switchAudioTrack(trackIndex)
             
         if settings.sub_prefs_on:
             trackIndex = self.evalSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Subtitle: None of the preferred languages is available' )
             elif trackIndex >= 0:
-                self.switchSubtitleTrack(trackIndex)
+                self.setSubtitleStream(trackIndex)
+                #self.switchSubtitleTrack(trackIndex)
                 
         if settings.condsub_prefs_on:
             trackIndex = self.evalCondSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
             elif trackIndex >= 0:
-                self.switchSubtitleTrack(trackIndex)
+                self.setSubtitleStream(trackIndex)
+                #self.switchSubtitleTrack(trackIndex)
                 
     def evalAudioPrefs(self):
         log(LOG_DEBUG, 'Evaluating audio preferences' )
