@@ -17,6 +17,7 @@ class settings():
       self.audio_prefs_on = addon.getSetting('enableAudio') == 'true'
       self.sub_prefs_on = addon.getSetting('enableSub') == 'true'
       self.condsub_prefs_on = addon.getSetting('enableCondSub') == 'true'
+      self.turn_subs_on = addon.getSetting('turnSubsOn') == 'true'
       self.at_least_one_pref_on = self.audio_prefs_on or self.sub_prefs_on or self.condsub_prefs_on
       
       
