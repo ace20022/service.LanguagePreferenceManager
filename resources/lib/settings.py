@@ -1,4 +1,5 @@
 import xbmcaddon
+import re
 from langcodes import *
 
 class settings():
@@ -19,6 +20,11 @@ class settings():
       self.condsub_prefs_on = addon.getSetting('enableCondSub') == 'true'
       self.turn_subs_on = addon.getSetting('turnSubsOn') == 'true'
       self.turn_subs_off = addon.getSetting('turnSubsOff') == 'true'
+      self.useFilename = addon.getSetting('useFilename') == 'true'
+      self.filenameRegex = addon.getSetting('filenameRegex')
+      if self.useFilename:
+          self.reg = re.compile(self.filenameRegex, re.IGNORECASE)
+          self.split = re.compile(r'[_|.|-]*', re.IGNORECASE)
       self.at_least_one_pref_on = self.audio_prefs_on or self.sub_prefs_on or self.condsub_prefs_on
       
       

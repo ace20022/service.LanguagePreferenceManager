@@ -1,11 +1,14 @@
 <settings>
 	<category label="General">
 		<setting id="enabled" label="30108" type="bool" default="false"/>
+		<setting id="log_level" label="Log level" type="enum" values="NONE|ERROR|INFO|DEBUG" default="1"/>
+		<setting label="30115" type="lsep"/>
 		<setting id="turnSubsOn" label="30113" type="bool" default="false"/>
 		<setting id="turnSubsOff" label="30114" type="bool" default="false"/>
+		<setting id="useFilename" label="30116" type="bool" default="false"/>
+		<setting label="30117" type="text" id="filenameRegex" default="audiostream[_|.|-]*\d+|subtitle[_|.|-]*\d+" visible="false"/>
 		<setting id="delay" label="30112" type="number" default="300"/>
 		<setting id="pause" label="30109" type="bool" default="false" visible="false"/>
-		<setting id="log_level" label="Log level" type="enum" values="NONE|ERROR|INFO|DEBUG" default="1"/>
 	</category>
 	
 	<category label="30104">

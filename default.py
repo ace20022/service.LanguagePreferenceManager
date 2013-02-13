@@ -1,7 +1,7 @@
 
 #import rpdb2 
 #rpdb2.start_embedded_debugger('pw')
-import os, sys
+import os, sys, re
 import xbmc, xbmcaddon
 
 if sys.version_info < (2, 7):
@@ -80,7 +80,33 @@ class LangPrefMan_Player(xbmc.Player) :
             self.evalPrefs()
 
     def evalPrefs(self):
-        if settings.audio_prefs_on:
+        # recognized filename audio or filename subtitle
+        fa = False
+        fs = False
+        if settings.useFilename:
+            audio, sub = self.evalFilenamePrefs()
+            if (audio >= 0) and audio < len(self.audiostreams):
+                log(LOG_INFO, 'Filename preference: Match, selecting audio track {0}'.format(audio))
+                self.setAudioStream(audio)
+                self.audio_changed = True
+                fa = True
+            else:
+                log(LOG_INFO, 'Filename preference: No match found for audio track ({0})'.format(self.getPlayingFile()))
+                
+            if (sub >= 0) and sub < len(self.subtitles):
+                self.setSubtitleStream(sub)
+                fs = True
+                log(LOG_INFO, 'Filename preference: Match, selecting subtitle track {0}'.format(sub))
+                if settings.turn_subs_on:
+                    log(LOG_DEBUG, 'Subtitle: enabling subs' )
+                    self.showSubtitles(True)
+            else:
+                log(LOG_INFO, 'Filename preference: No match found for subtitle track ({0})'.format(self.getPlayingFile()))
+                if settings.turn_subs_off:
+                    log(LOG_INFO, 'Subtitle: disabling subs' )
+                    self.showSubtitles(False)
+                    
+        if settings.audio_prefs_on and not fa:
             trackIndex = self.evalAudioPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Audio: None of the preferred languages is available' )
@@ -88,20 +114,20 @@ class LangPrefMan_Player(xbmc.Player) :
                 self.setAudioStream(trackIndex)
                 self.audio_changed = True
             
-        if settings.sub_prefs_on:
+        if settings.sub_prefs_on and not fs:
             trackIndex = self.evalSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Subtitle: None of the preferred languages is available' )
                 if settings.turn_subs_off:
-                    log(LOG_DEBUG, 'Subtitle: disabling subs' )
+                    log(LOG_INFO, 'Subtitle: disabling subs' )
                     self.showSubtitles(False)
             elif trackIndex >= 0:
                 self.setSubtitleStream(trackIndex)
-                if setings.turn_subs_on:
-                    log(LOG_DEBUG, 'Subtitle: enabling subs' )
+                if settings.turn_subs_on:
+                    log(LOG_INFO, 'Subtitle: enabling subs' )
                     self.showSubtitles(True)
                 
-        if settings.condsub_prefs_on:
+        if settings.condsub_prefs_on and not fs:
             trackIndex = self.evalCondSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
@@ -113,7 +139,29 @@ class LangPrefMan_Player(xbmc.Player) :
                 if settings.turn_subs_on:
                     log(LOG_DEBUG, 'Subtitle: enabling subs' )
                     self.showSubtitles(True)
-                
+
+    def evalFilenamePrefs(self):
+        log(LOG_DEBUG, 'Evaluating filename preferences' )
+        audio = -1
+        sub = -1
+        filename = self.getPlayingFile()
+        matches = settings.reg.findall(filename)
+        fileprefs = []
+        for m in matches:
+            sp = settings.split.split(m)
+            fileprefs.append(sp)
+
+        for pref in fileprefs:
+            if len(pref) == 2:
+                if (pref[0].lower() == 'audiostream'):
+                    audio = int(pref[1])
+                    log(LOG_INFO, 'audio track extracted from filename: {0}'.format(audio))
+                elif(pref[0].lower() == 'subtitle'):
+                    sub = int(pref[1])
+                    log(LOG_INFO, 'subtitle track extracted from filename: {0}'.format(sub))
+        log(LOG_DEBUG, 'filename: audio: {0}, sub: {1} ({2})'.format(audio, sub, filename))
+        return audio, sub
+    
     def evalAudioPrefs(self):
         log(LOG_DEBUG, 'Evaluating audio preferences' )
         i = 0
