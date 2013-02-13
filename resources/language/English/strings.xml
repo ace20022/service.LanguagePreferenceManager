@@ -17,14 +17,15 @@
     <string id="30103">Third Language</string>  
 	<string id="30104">Audio Preferences</string>  
 	<string id="30105">Subtitle Preferences</string>  
-	<string id="30106">Conditioned Subtitle Preferences</string> 
+	<string id="30106">Conditional Subtitle Preferences</string> 
 	<string id="30107">Enable Preference</string> 
 	<string id="30108">Enable Language Preference Manager</string> 	
 	<string id="30109">Pause while evaluating preferences</string>
 	<string id="30110">If audio language is </string>
 	<string id="30111">then display subtitles with language</string>
 	<string id="30112">Delay the evaluation by the given ms</string>
-	<string id="30113">Turn on subtitles if a subtitle prefrence is met</string>
+	<string id="30113">Turn on subtitles if a subtitle prefrence matched</string>
+	<string id="30114">Turn off subtitles if no subtitle prefrence matched</string>
 	        
   <!-- Languages  -->
   

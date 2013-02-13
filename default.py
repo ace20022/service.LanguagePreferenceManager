@@ -92,18 +92,26 @@ class LangPrefMan_Player(xbmc.Player) :
             trackIndex = self.evalSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Subtitle: None of the preferred languages is available' )
+                if settings.turn_subs_off:
+                    log(LOG_DEBUG, 'Subtitle: disabling subs' )
+                    self.showSubtitles(False)
             elif trackIndex >= 0:
                 self.setSubtitleStream(trackIndex)
                 if setings.turn_subs_on:
+                    log(LOG_DEBUG, 'Subtitle: enabling subs' )
                     self.showSubtitles(True)
                 
         if settings.condsub_prefs_on:
             trackIndex = self.evalCondSubPrefs()
             if trackIndex == -2:
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
+                if settings.turn_subs_off:
+                    log(LOG_DEBUG, 'Subtitle: disabling subs' )
+                    self.showSubtitles(False)
             elif trackIndex >= 0:
                 self.setSubtitleStream(trackIndex)
                 if settings.turn_subs_on:
+                    log(LOG_DEBUG, 'Subtitle: enabling subs' )
                     self.showSubtitles(True)
                 
     def evalAudioPrefs(self):
