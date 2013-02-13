@@ -1,3 +1,17 @@
+--- Version 0.0.2
+
+[new]
+
+- A switch to enable subtitles if a preference matched.
+- A switch to disable subtitles if no subtitle preference matched.
+- The possibility to set the audio and/or subtitle track from the filename.
+	For example: matrix.audiostream_1.subtitle_2.avi
+
+[fixes]
+conditional preferences
+typos
+
+
 --- Version 0.0.1
 
 First version of Language Preference Manager.
