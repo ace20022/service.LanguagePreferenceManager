@@ -1,6 +1,15 @@
---- Version 0.0.2
+--- Version 0.0.3
 
-[new]
+- Custom preferences. Syntax is lang1>lang2>lang3>... for audio and sub 
+							and lang1:lang2>lang3:lang4>... for cond. subs
+- Wanilton's Portuguese (Brazil) translation, thanks!
+- schumi2004's Dutch translation, thanks!
+
+[fixes]
+subtitle preferences
+use file name tracks of other settings, if enabled
+
+--- Version 0.0.2
 
 - A switch to enable subtitles if a preference matched.
 - A switch to disable subtitles if no subtitle preference matched.
@@ -10,7 +19,6 @@
 [fixes]
 conditional preferences
 typos
-
 
 --- Version 0.0.1
 

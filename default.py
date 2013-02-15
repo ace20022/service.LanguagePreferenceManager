@@ -19,7 +19,7 @@ __addonIconFile__ = xbmc.translatePath(os.path.join(__addonPath__, 'icon.png'))
 sys.path.append(__addonResourcePath__)
 
 from langcodes import *
-from settings import *
+from settings import settings
 
 settings = settings()
 
@@ -41,16 +41,19 @@ def log(level, msg):
 
 class LangPref_Monitor( xbmc.Monitor ):
   def __init__( self ):
-    xbmc.Monitor.__init__( self )
+      xbmc.Monitor.__init__( self )
         
   def onSettingsChanged( self ):
-    settings.readPrefs()
+      settings.init()
+      settings.readSettings()
 
 class Main:
     def __init__( self ):
         self._init_vars()
-        if ( not settings.service_enabled):
+        if (not settings.service_enabled):
             log(LOG_INFO, "Service not enabled")
+
+        settings.readSettings()
         self._daemon()
 
     def _init_vars( self ):
@@ -107,7 +110,11 @@ class LangPrefMan_Player(xbmc.Player) :
                     self.showSubtitles(False)
                     
         if settings.audio_prefs_on and not fa:
-            trackIndex = self.evalAudioPrefs()
+            if settings.custom_audio_prefs_on:
+                trackIndex = self.evalAudioPrefs(settings.custom_audio)
+            else:
+                trackIndex = self.evalAudioPrefs(settings.AudioPrefs)
+                
             if trackIndex == -2:
                 log(LOG_INFO, 'Audio: None of the preferred languages is available' )
             elif trackIndex >= 0:
@@ -115,7 +122,11 @@ class LangPrefMan_Player(xbmc.Player) :
                 self.audio_changed = True
             
         if settings.sub_prefs_on and not fs:
-            trackIndex = self.evalSubPrefs()
+            if settings.custom_sub_prefs_on:
+                trackIndex = self.evalSubPrefs(settings.custom_subs)
+            else:
+                trackIndex = self.evalSubPrefs(settings.SubtitlePrefs)
+                
             if trackIndex == -2:
                 log(LOG_INFO, 'Subtitle: None of the preferred languages is available' )
                 if settings.turn_subs_off:
@@ -128,7 +139,11 @@ class LangPrefMan_Player(xbmc.Player) :
                     self.showSubtitles(True)
                 
         if settings.condsub_prefs_on and not fs:
-            trackIndex = self.evalCondSubPrefs()
+            if settings.custom_condsub_prefs_on:
+                trackIndex = self.evalCondSubPrefs(settings.custom_condsub)
+            else:
+                trackIndex = self.evalCondSubPrefs(settings.CondSubtitlePrefs)
+                
             if trackIndex == -2:
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
                 if settings.turn_subs_off:
@@ -162,10 +177,10 @@ class LangPrefMan_Player(xbmc.Player) :
         log(LOG_DEBUG, 'filename: audio: {0}, sub: {1} ({2})'.format(audio, sub, filename))
         return audio, sub
     
-    def evalAudioPrefs(self):
+    def evalAudioPrefs(self, audio_prefs):
         log(LOG_DEBUG, 'Evaluating audio preferences' )
         i = 0
-        for pref in settings.AudioPrefs:
+        for pref in audio_prefs:
             i += 1
             name, code = pref
             if (self.selected_audio_stream and
@@ -181,10 +196,10 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Audio: preference {0} ({1}) not available'.format(i, name) )
         return -2
                 
-    def evalSubPrefs(self):
+    def evalSubPrefs(self, sub_prefs):
         log(LOG_DEBUG, 'Evaluating subtitle preferences' )
         i = 0
-        for pref in settings.SubtitlePrefs:
+        for pref in sub_prefs:
             i += 1
             name, code = pref
             if (self.selected_sub and
@@ -200,7 +215,7 @@ class LangPrefMan_Player(xbmc.Player) :
                 log(LOG_INFO, 'Subtitle: preference {0} ({1}) not available'.format(i, name) )
         return -2
 
-    def evalCondSubPrefs(self):
+    def evalCondSubPrefs(self, condsub_prefs):
         log(LOG_DEBUG, 'Evaluating conditional subtitle preferences' )
         # if the audio track has been changed wait some time
         if (self.audio_changed and settings.delay > 0):
@@ -209,7 +224,7 @@ class LangPrefMan_Player(xbmc.Player) :
         log(LOG_DEBUG, 'Getting video properties')
         self.getDetails()
         i = 0
-        for pref in settings.CondSubtitlePrefs:
+        for pref in condsub_prefs:
             i += 1
             audio_name, audio_code, sub_name, sub_code = pref
             if (self.selected_audio_stream and
