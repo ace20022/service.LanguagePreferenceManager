@@ -7,7 +7,7 @@
 
 [fixes]
 subtitle preferences
-use file name tracks of other settings, if enabled
+use file name tracks regardless of other settings, if enabled
 
 --- Version 0.0.2
 
