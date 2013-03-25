@@ -143,7 +143,10 @@ class LangPrefMan_Player(xbmc.Player) :
                 trackIndex = self.evalCondSubPrefs(settings.custom_condsub)
             else:
                 trackIndex = self.evalCondSubPrefs(settings.CondSubtitlePrefs)
-                
+
+            if trackIndex == -1:
+                log(LOG_INFO, 'Conditional subtitle: disabling subs' )
+                self.showSubtitles(False)
             if trackIndex == -2:
                 log(LOG_INFO, 'Conditional subtitle: None of the preferrences is available' )
                 if settings.turn_subs_off:
@@ -183,6 +186,9 @@ class LangPrefMan_Player(xbmc.Player) :
         for pref in audio_prefs:
             i += 1
             name, code = pref
+            if (code == 'non'):
+                log(LOG_DEBUG,'continue')
+                continue                
             if (self.selected_audio_stream and
                 self.selected_audio_stream.has_key('language') and
                 (code == self.selected_audio_stream['language'] or name == self.selected_audio_stream['language'])):
@@ -193,7 +199,7 @@ class LangPrefMan_Player(xbmc.Player) :
                     if ((code == stream['language']) or (name == stream['language'])):
                         log(LOG_INFO, 'Audio language of stream {0} matches preference {1} ({2})'.format(stream['index'], i, name) )
                         return stream['index']
-                log(LOG_INFO, 'Audio: preference {0} ({1}) not available'.format(i, name) )
+                log(LOG_INFO, 'Audio: preference {0} ({1}:{2}) not available'.format(i, name, code) )
         return -2
                 
     def evalSubPrefs(self, sub_prefs):
@@ -202,6 +208,9 @@ class LangPrefMan_Player(xbmc.Player) :
         for pref in sub_prefs:
             i += 1
             name, code = pref
+            if (code == 'non'):
+                log(LOG_DEBUG,'continue')
+                continue 
             if (self.selected_sub and
                 self.selected_sub.has_key('language') and
                 (code == self.selected_sub['language'] or name == self.selected_sub['language'])):
@@ -212,7 +221,7 @@ class LangPrefMan_Player(xbmc.Player) :
                     if ((code == sub['language']) or (name == sub['language'])):
                         log(LOG_INFO, 'Subtitle language of subtitle {0} matches preference {1} ({2})'.format(sub['index'], i, name) )
                         return sub['index']
-                log(LOG_INFO, 'Subtitle: preference {0} ({1}) not available'.format(i, name) )
+                log(LOG_INFO, 'Subtitle: preference {0} ({1}:{2}) not available'.format(i, name, code) )
         return -2
 
     def evalCondSubPrefs(self, condsub_prefs):
@@ -227,16 +236,22 @@ class LangPrefMan_Player(xbmc.Player) :
         for pref in condsub_prefs:
             i += 1
             audio_name, audio_code, sub_name, sub_code = pref
+            if (audio_code == 'non'):
+                log(LOG_DEBUG,'continue')
+                continue 
             if (self.selected_audio_stream and
                 self.selected_audio_stream.has_key('language') and
                 (audio_code == self.selected_audio_stream['language'] or audio_name == self.selected_audio_stream['language'])):
                     log(LOG_INFO, 'Selected audio language matches conditional preference {0} ({1}:{2})'.format(i, audio_name, sub_name) )
-                    for sub in self.subtitles:
-                        if ((sub_code == sub['language']) or (sub_name == sub['language'])):
-                            log(LOG_INFO, 'Language of subtitle {0} matches conditional preference {1} ({2}:{3})'.format(sub['index'], i, audio_name, sub_name) )
-                            return sub['index']
-                        else:
-                            log(LOG_INFO, 'Conditional subtitle: no match found for preference {0} ({1}:{2})'.format(i, audio_name, sub_name) )
+                    if (sub_code == 'non'):
+                        return -1
+                    else:
+                        for sub in self.subtitles:
+                            if ((sub_code == sub['language']) or (sub_name == sub['language'])):
+                                log(LOG_INFO, 'Language of subtitle {0} matches conditional preference {1} ({2}:{3})'.format(sub['index'], i, audio_name, sub_name) )
+                                return sub['index']
+                            else:
+                                log(LOG_INFO, 'Conditional subtitle: no match found for preference {0} ({1}:{2})'.format(i, audio_name, sub_name) )
         return -2
 
     

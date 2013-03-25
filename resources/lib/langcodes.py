@@ -68,7 +68,8 @@ LANGUAGES      = (
     ("SerbianLatin"               , "36",       "sr",            "scc",                 "100",                   30237  ),
     ("Spanish (Spain)"            , "28",       "es",            "spa",                 "100",                   30240  ),
     ("Chinese (Traditional)"      , "17",       "zh",            "chi",                 "100",                   30207  ),
-    ("Chinese (Simplified)"       , "17",       "zh",            "chi",                 "100",                   30207  ) )
+    ("Chinese (Simplified)"       , "17",       "zh",            "chi",                 "100",                   30207  ),
+    ("None"                       , "-1",       "",              "non",                 "44",                    30200  ) )
 
 def languageTranslate(lang, lang_from, lang_to):
   for x in LANGUAGES:
