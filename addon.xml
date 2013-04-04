@@ -2,7 +2,7 @@
 <addon
 	id="service.LanguagePreferenceManager"
 	name="Language Preference Manager"
-	version="0.0.3"
+	version="0.0.4"
 	provider-name="ace20022"
 	>
 	<requires>
@@ -14,7 +14,7 @@
 	</extension>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="en">Language Preference Manager</summary>
-		<description lang="en">Sets the audio and subtitle according to your language preferences</description>
+		<description lang="en">Sets the audio and subtitle track according to your language preferences</description>
 		<disclaimer lang="en">For bugs, requests or general questions visit the Language Preference Manager thread on the XBMC forum.</disclaimer>
 		<platform>all</platform>
 	</extension>

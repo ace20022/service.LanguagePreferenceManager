@@ -1,3 +1,12 @@
+--- Version 0.0.4
+
+- Added a language called "None". If set as a conditinal subtitle language
+	subtitles get disabled if the audio language matches.
+
+- Added support for per genre/tag custom preferences. Syntax is 
+	tag/genre1,tag/genre2...#(custom pref; see below)|tag/genre3,tag/genre4...#(custom pref; see below)
+	If no genre/tag# part is provided the pref gets evaluated for any genre/tag
+
 --- Version 0.0.3
 
 - Custom preferences. Syntax is lang1>lang2>lang3>... for audio and sub 
