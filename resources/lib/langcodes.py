@@ -25,7 +25,7 @@ LANGUAGES      = (
     ("Persian"                    , "52",       "fa",            "per",                 "13",                    30247  ),
     ("Finnish"                    , "31",       "fi",            "fin",                 "14",                    30214  ),
     ("French"                     , "8",        "fr",            "fre",                 "15",                    30215  ),
-    ("German"                     , "5",        "de",            "ger",                 "16",                    30216  ),
+    ("German"                     , "5",        "de",            "ger,deu",             "16",                    30216  ),
     ("Greek"                      , "16",       "el",            "ell",                 "17",                    30217  ),
     ("Hebrew"                     , "22",       "he",            "heb",                 "18",                    30218  ),
     ("Hindi"                      , "42",       "hi",            "hin",                 "19",                    30219  ),
@@ -73,5 +73,7 @@ LANGUAGES      = (
 
 def languageTranslate(lang, lang_from, lang_to):
   for x in LANGUAGES:
-    if lang == x[lang_from] :
-      return x[lang_to]
+    codes = x[lang_from].split(r',')
+    for code in codes:
+      if lang == code :
+        return x[lang_to]
