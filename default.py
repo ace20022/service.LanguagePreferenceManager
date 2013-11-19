@@ -19,7 +19,7 @@ __addonIconFile__ = xbmc.translatePath(os.path.join(__addonPath__, 'icon.png'))
 sys.path.append(__addonResourcePath__)
 
 from langcodes import *
-from settings import settings
+from prefsettings import settings
 
 settings = settings()
 
