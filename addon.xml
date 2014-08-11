@@ -2,7 +2,7 @@
 <addon
 	id="service.LanguagePreferenceManager"
 	name="Language Preference Manager"
-	version="0.0.4"
+	version="0.0.5"
 	provider-name="ace20022"
 	>
 	<requires>
