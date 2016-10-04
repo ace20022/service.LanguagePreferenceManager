@@ -1,3 +1,7 @@
+--- Version 0.0.6
+
+- Fix compatibility with jarvis and krypton
+
 --- Version 0.0.5
 
 - Added support for multiple 3 digit codes per language (thanks to waven!)
