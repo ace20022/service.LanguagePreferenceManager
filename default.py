@@ -1,13 +1,7 @@
-
-#import rpdb2 
-#rpdb2.start_embedded_debugger('pw')
 import os, sys, re
 import xbmc, xbmcaddon
 
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+import json as simplejson
 
 __addon__ = xbmcaddon.Addon()
 __addonversion__ = __addon__.getAddonInfo('version')
