@@ -186,21 +186,23 @@ class LangPrefMan_Player(xbmc.Player) :
 
             log(LOG_INFO,'Audio: genre/tag preference {0} met with intersection {1}'.format(g_t, (self.genres_and_tags & g_t)))
             for pref in preferences:
-                name, code = pref
-                if (code == 'non'):
-                    log(LOG_DEBUG,'continue')
-                    continue                
-                if (self.selected_audio_stream and
-                    self.selected_audio_stream.has_key('language') and
-                    (code == self.selected_audio_stream['language'] or name == self.selected_audio_stream['language'])):
-                        log(LOG_INFO, 'Selected audio language matches preference {0} ({1})'.format(i, name) )
-                        return -1
-                else:
-                    for stream in self.audiostreams:
-                        if ((code == stream['language']) or (name == stream['language'])):
-                            log(LOG_INFO, 'Audio language of stream {0} matches preference {1} ({2})'.format(stream['index'], i, name) )
-                            return stream['index']
-                    log(LOG_INFO, 'Audio: preference {0} ({1}:{2}) not available'.format(i, name, code) )
+                name, codes = pref
+                codes = codes.split(r',')
+                for code in codes:
+                    if (code == 'non'):
+                        log(LOG_DEBUG,'continue')
+                        continue                
+                    if (self.selected_audio_stream and
+                        self.selected_audio_stream.has_key('language') and
+                        (code == self.selected_audio_stream['language'] or name == self.selected_audio_stream['language'])):
+                            log(LOG_INFO, 'Selected audio language matches preference {0} ({1})'.format(i, name) )
+                            return -1
+                    else:
+                        for stream in self.audiostreams:
+                            if ((code == stream['language']) or (name == stream['language'])):
+                                log(LOG_INFO, 'Audio language of stream {0} matches preference {1} ({2})'.format(stream['index'], i, name) )
+                                return stream['index']
+                        log(LOG_INFO, 'Audio: preference {0} ({1}:{2}) not available'.format(i, name, code) )
         return -2
                 
     def evalSubPrefs(self, sub_prefs):
@@ -215,21 +217,23 @@ class LangPrefMan_Player(xbmc.Player) :
 
             log(LOG_INFO,'Subtitle: genre/tag preference {0} met with intersection {1}'.format(g_t, (self.genres_and_tags & g_t)))
             for pref in preferences:
-                name, code = pref       
-                if (code == 'non'):
-                    log(LOG_DEBUG,'continue')
-                    continue 
-                if (self.selected_sub and
-                    self.selected_sub.has_key('language') and
-                    (code == self.selected_sub['language'] or name == self.selected_sub['language'])):
-                        log(LOG_INFO, 'Selected subtitle language matches preference {0} ({1})'.format(i, name) )
-                        return -1
-                else:
-                    for sub in self.subtitles:
-                        if ((code == sub['language']) or (name == sub['language'])):
-                            log(LOG_INFO, 'Subtitle language of subtitle {0} matches preference {1} ({2})'.format(sub['index'], i, name) )
-                            return sub['index']
-                    log(LOG_INFO, 'Subtitle: preference {0} ({1}:{2}) not available'.format(i, name, code) )
+                name, codes = pref
+                codes = codes.split(r',')
+                for code in codes:
+                    if (code == 'non'):
+                        log(LOG_DEBUG,'continue')
+                        continue 
+                    if (self.selected_sub and
+                        self.selected_sub.has_key('language') and
+                        (code == self.selected_sub['language'] or name == self.selected_sub['language'])):
+                            log(LOG_INFO, 'Selected subtitle language matches preference {0} ({1})'.format(i, name) )
+                            return -1
+                    else:
+                        for sub in self.subtitles:
+                            if ((code == sub['language']) or (name == sub['language'])):
+                                log(LOG_INFO, 'Subtitle language of subtitle {0} matches preference {1} ({2})'.format(sub['index'], i, name) )
+                                return sub['index']
+                        log(LOG_INFO, 'Subtitle: preference {0} ({1}:{2}) not available'.format(i, name, code) )
         return -2
 
     def evalCondSubPrefs(self, condsub_prefs):
