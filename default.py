@@ -273,9 +273,19 @@ class LangPrefMan_Player(xbmc.Player) :
         return -2
     
     def getDetails(self):
-        details_query_string = '{"jsonrpc": "2.0", "method": "Player.GetProperties", "params":' \
-            '{ "properties": ["currentaudiostream", "audiostreams", "subtitleenabled", "currentsubtitle", "subtitles" ], "playerid": 1 },' \
-            '"id": 1}'
+        activePlayers ='{"jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1}'
+        json_query = xbmc.executeJSONRPC(activePlayers)
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+        activePlayerID = json_response['result'][0]['playerid']
+        details_query_dict = {  "jsonrpc": "2.0",
+                                "method": "Player.GetProperties",
+                                "params": { "properties": 
+                                            ["currentaudiostream", "audiostreams", "subtitleenabled",
+                                             "currentsubtitle", "subtitles" ],
+                                            "playerid": activePlayerID },
+                                "id": 1}
+        details_query_string = simplejson.dumps(details_query_dict)
         json_query = xbmc.executeJSONRPC(details_query_string)
         json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
@@ -287,8 +297,13 @@ class LangPrefMan_Player(xbmc.Player) :
             self.audiostreams = json_response['result']['audiostreams']
             self.subtitles = json_response['result']['subtitles']
         log(LOG_DEBUG, json_response )
-
-        genre_tags_query_string = '{"jsonrpc": "2.0", "method": "Player.GetItem", "params": { "properties": ["genre", "tag"], "playerid": 1 }, "id": 1}'
+        genre_tags_query_dict = {"jsonrpc": "2.0",
+                                 "method": "Player.GetItem",
+                                 "params": { "properties":
+                                            ["genre", "tag"],
+                                            "playerid": activePlayerID },
+                                 "id": 1}
+        genre_tags_query_string = simplejson.dumps(genre_tags_query_dict)
         json_query = xbmc.executeJSONRPC(genre_tags_query_string)
         json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
